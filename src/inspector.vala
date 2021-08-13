@@ -8,7 +8,7 @@ namespace ProcessInspector {
 
 	private static int main (string[] args) {
 		Gum.init ();
-		GLibOpenSSLStatic.register ();
+		GIOOpenSSL.register ();
 
 		try {
 			var ctx = new OptionContext ();
