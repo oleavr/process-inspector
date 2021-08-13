@@ -60,6 +60,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 
 			threads.add (new Thread (
 				query_thread_name ((Gum.DarwinPort) details.id),
+				details.state,
 				generate_backtrace (context)
 			));
 

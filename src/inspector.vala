@@ -69,6 +69,7 @@ namespace ProcessInspector {
 
 				var threads = yield session.enumerate_threads (cancellable);
 				uint thread_index = 0;
+				var thread_state_enum = (EnumClass) typeof (Gum.ThreadState).class_ref ();
 				foreach (var thread in threads) {
 					var description = new StringBuilder ();
 
@@ -80,6 +81,7 @@ namespace ProcessInspector {
 					if (name != null) {
 						description.append_printf (" (%s)", name);
 					}
+					description.append_printf (" [%s]", thread_state_enum.get_value (thread.state).value_nick);
 					description.append_c ('\n');
 
 					uint frame_index = 0;

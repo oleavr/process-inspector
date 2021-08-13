@@ -14,17 +14,25 @@ namespace ProcessInspector {
 	public class Thread : Object {
 		public string? name {
 			get;
-			private set;
+			construct;
+		}
+
+		public Gum.ThreadState state {
+			get;
+			construct;
 		}
 
 		public Gee.ArrayList<Frame> backtrace {
 			get;
-			private set;
+			construct;
 		}
 
-		public Thread (string? name, Gee.ArrayList<Frame> backtrace) {
-			this.name = name;
-			this.backtrace = backtrace;
+		public Thread (string? name, Gum.ThreadState state, Gee.ArrayList<Frame> backtrace) {
+			Object (
+				name: name,
+				state: state,
+				backtrace: backtrace
+			);
 		}
 
 		public class Frame {
