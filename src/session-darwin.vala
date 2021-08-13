@@ -325,7 +325,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 			if (!FileUtils.test (ELECTRA_JAILBREAKD_LIBRARY, EXISTS))
 				return true;
 
-			var module = Module.open (ELECTRA_JAILBREAKD_LIBRARY, BIND_LAZY);
+			var module = Module.open (ELECTRA_JAILBREAKD_LIBRARY, LAZY);
 			assert (module != null);
 
 			void * entitle_now_address;
