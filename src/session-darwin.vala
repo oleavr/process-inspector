@@ -13,7 +13,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 	private const uint32 MACHO32_MAGIC = (uint32) 0xfeedface;
 	private const uint32 MACHO64_MAGIC = (uint32) 0xfeedfacf;
 
-	private Gum.Darwin.Port task;
+	private Gum.DarwinPort task;
 	private Gum.CpuType cpu_type;
 	private uint page_size;
 	private Gum.Darwin.Symbolicator symbolicator;
@@ -59,7 +59,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 			Gum.Arm64CpuContext * context = (Gum.Arm64CpuContext *) &details.cpu_context;
 
 			threads.add (new Thread (
-				query_thread_name ((Gum.Darwin.Port) details.id),
+				query_thread_name ((Gum.DarwinPort) details.id),
 				generate_backtrace (context)
 			));
 
@@ -156,7 +156,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 	}
 
 	private class ManuallyMappedDylib : Object {
-		public Gum.Darwin.Module module {
+		public Gum.DarwinModule module {
 			get;
 			construct;
 		}
@@ -166,7 +166,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 			construct;
 		}
 
-		public ManuallyMappedDylib (Gum.Darwin.Module module, Gum.Darwin.Symbolicator? symbolicator) {
+		public ManuallyMappedDylib (Gum.DarwinModule module, Gum.Darwin.Symbolicator? symbolicator) {
 			Object (module: module, symbolicator: symbolicator);
 		}
 	}
@@ -203,7 +203,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 		return true;
 	}
 
-	private Gum.Darwin.Module? find_closest_module (Gum.Address address) {
+	private Gum.DarwinModule? find_closest_module (Gum.Address address) {
 		Gum.Address cur_region = round_down_to_4k_boundary (address);
 		while (true) {
 			uint8[]? chunk = Gum.Darwin.read (task, cur_region, 4);
@@ -213,7 +213,7 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 			uint32 val = *((uint32 *) chunk);
 			if (val == MACHO32_MAGIC || val == MACHO64_MAGIC) {
 				try {
-					var module = new Gum.Darwin.Module.from_memory (null, task, cpu_type, page_size, cur_region);
+					var module = new Gum.DarwinModule.from_memory (null, task, cur_region);
 					if (module.name != null && module.uuid != null)
 						return module;
 				} catch (Error e) {
@@ -295,15 +295,15 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 		return true;
 	}
 
-	private static Gum.Darwin.Port task_for_pid (int pid) throws SessionError {
-		Gum.Darwin.Port task;
+	private static Gum.DarwinPort task_for_pid (int pid) throws SessionError {
+		Gum.DarwinPort task;
 		var result = Gum.Darwin.task_for_pid (Gum.Darwin.mach_task_self (), pid, out task);
 		if (result != SUCCESS)
 			throw new SessionError.FAILED ("task_for_pid() failed: %d", result);
 		return task;
 	}
 
-	private static extern string? query_thread_name (Gum.Darwin.Port thread);
+	private static extern string? query_thread_name (Gum.DarwinPort thread);
 
 	private struct StackBounds {
 		public Gum.Address bottom;
