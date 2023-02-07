@@ -12,8 +12,8 @@ namespace ProcessInspector {
 		private Soup.Session _session;
 
 		public async File download (string url, Cancellable? cancellable) throws Error {
-			var request = session.request_http ("GET", url);
-			var input_stream = yield request.send_async (cancellable);
+			var msg = new Soup.Message ("GET", url);
+			InputStream input_stream = yield session.send_async (msg, Priority.DEFAULT, cancellable);
 
 			FileIOStream tmp_stream;
 			var tmp_file = File.new_tmp (null, out tmp_stream);

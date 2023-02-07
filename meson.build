@@ -36,7 +36,7 @@ gio_dep = dependency('gio-2.0')
 gmodule_dep = dependency('gmodule-2.0')
 gee_dep = dependency('gee-0.8')
 gum_dep = dependency('frida-gum-1.0')
-libsoup_dep = dependency('libsoup-2.4')
+libsoup_dep = dependency('libsoup-3.0')
 tls_provider_dep = dependency('gioopenssl')
 
 ldid2 = find_program('ldid2', required: host_os == 'ios')
