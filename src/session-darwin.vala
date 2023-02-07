@@ -228,6 +228,11 @@ class ProcessInspector.DarwinSession : Object, Initable, Session {
 	private Gee.ArrayList<Thread.Frame> generate_backtrace (Gum.Arm64CpuContext * context) {
 		var result = new Gee.ArrayList<Thread.Frame> ();
 
+		if (context->lr == 0) {
+			result.add (new Thread.Frame (context->pc, context->sp));
+			return result;
+		}
+
 		result.add (new Thread.Frame (context->lr, context->sp));
 
 		Gum.Address current = context->fp;
