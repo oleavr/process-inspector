@@ -39,6 +39,15 @@ gum_dep = dependency('frida-gum-1.0')
 libsoup_dep = dependency('libsoup-3.0')
 tls_provider_dep = dependency('gioopenssl')
 
-ldid2 = find_program('ldid2', required: host_os == 'ios')
+if host_os_family != 'windows'
+  strip = find_program('strip')
+else
+  strip = ''
+endif
+if host_os_family == 'darwin'
+  codesign = find_program('codesign')
+else
+  codesign = ''
+endif
 
 subdir('src')

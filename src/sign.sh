@@ -1,17 +1,26 @@
 #!/bin/sh
 
 host_os="$1"
-inspector_binary="$2"
-inspector_entitlements="$3"
-signed_inspector_binary="$4"
-ldid_binary="$5"
-strip_binary="$6"
-strip_enabled="$7"
-
-if [ -z "$CODESIGN" ]; then
-  echo "CODESIGN not set"
+input_inspector_path="$2"
+input_entitlements_path="$3"
+output_inspector_path="$4"
+strip_command=()
+if [ "$5" = ">>>" ]; then
+  shift 5
+  while true; do
+    cur=$1
+    shift 1
+    if [ "$cur" = "<<<" ]; then
+      break
+    fi
+    strip_command+=("$cur")
+  done
+else
+  echo "Invalid argument" > /dev/stderr
   exit 1
 fi
+strip_enabled=$1
+codesign=$2
 
 case $host_os in
   macos)
@@ -32,17 +41,21 @@ case $host_os in
     ;;
 esac
 
-cp "$inspector_binary" "$signed_inspector_binary"
+intermediate_path=$output_inspector_path.tmp
+rm -f "$intermediate_path"
+cp -a "$input_inspector_path" "$intermediate_path"
 
 if [ "$strip_enabled" = "true" ]; then
-  "$strip_binary" "$signed_inspector_binary"
+  "${strip_command[@]}" "$intermediate_path" || exit 1
 fi
 
 case $host_os in
   macos)
-    "$CODESIGN" -f -s "$MAC_CERTID" -i "re.frida.ProcessInspector" "$signed_inspector_binary" || exit 1
+    "$codesign" -f -s "$MAC_CERTID" -i "re.frida.ProcessInspector" "$intermediate_path" || exit 1
     ;;
   ios)
-    "$ldid_binary" "-S$inspector_entitlements" "$signed_inspector_binary" || exit 1
+    "$codesign" -f -s "$IOS_CERTID" --entitlements "$input_entitlements_path" "$intermediate_path" || exit 1
     ;;
 esac
+
+mv "$intermediate_path" "$output_inspector_path"
